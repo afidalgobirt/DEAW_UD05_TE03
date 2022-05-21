@@ -1,0 +1,34 @@
+version: '3'
+services:
+    mysql:
+        # https://hub.docker.com/_/mysql
+        image: mysql:latest
+        container_name: mysql
+        restart: unless-stopped
+        volumes:
+            - ./volumes/mysql:/var/lib/mysql
+            - ./volumes/initdb:/docker-entrypoint-initdb.d
+        environment:
+            - "MYSQL_ROOT_PASSWORD=root"
+    
+    phpmyadmin:
+        # https://hub.docker.com/_/phpmyadmin?tab=description
+        image: phpmyadmin:5.1.3
+        container_name: phpmyadmin
+        restart: unless-stopped
+        ports:
+            - 8000:80
+        environment:
+            PMA_ARBITRARY: 1
+
+    wildfly:
+        # https://quay.io/repository/wildfly/wildfly
+        image: quay.io/wildfly/wildfly
+        # image: jboss/wildfly # Imagen de Docker Hub (deprecated).
+        container_name: wildfly
+        restart: unless-stopped
+        ports:
+            - 8080:8080
+            - 9990:9990
+        command: bash -c "/opt/jboss/wildfly/bin/add-user.sh admin admin --silent &&
+                          /opt/jboss/wildfly/bin/standalone.sh -b 0.0.0.0 -bmanagement 0.0.0.0"
